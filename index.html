@@ -17,7 +17,7 @@
 </head>
 <body>
 
-	<div id="map" style="width: 600px; height: 400px;"></div>
+	<div id="map" style="width: 800px; height: 800px;"></div>
 
 	<script>
 
@@ -35,12 +35,17 @@
 
 		geojsonLayer.addTo(mymap);
 
-		function onEachFeature(feature, layer) {
-			const popupContent = "<p>I started out I'm a Leaflet vector!</p>";
+		const properties = ['addr_city', 'addr_full', 'addr_house', 'addr_stree', 'amenity', 'beds', 'man_made', 'opening_ho', 'osm_id', 'rooms', 'shop', 'tourism'];
 
-			if (feature.properties && feature.properties.popupContent) {
-				popupContent += feature.properties.popupContent;
-			}
+		function onEachFeature(feature, layer) {
+			let popupContent = `<p>NAME: ${feature.properties.name}</p>`;
+			properties.forEach(property => {
+				const propertyValue = feature.properties[property];
+				if (!propertyValue) {
+					return;
+				}
+				popupContent += `<p>${property}: ${propertyValue}</p>`;
+			})
 
 			layer.bindPopup(popupContent);
 		}
