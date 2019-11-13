@@ -4,56 +4,80 @@
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/data.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-
-    <style>
-    </style>
   </head>
   <body>
-    <div id="container"></div>
+    <div id='container'></div>
     <script>
-      Highcharts.chart('container', {
+      const options = {
           chart: {
               type: 'column'
           },
-          data: {
-              enablePolling: false, // for now :) 
-              csvURL: 'https://storage.googleapis.com/c2s_developer_exercise/Sri-Lanka_GSMaP_20180516_20180612.csv'
-          },
           title: {
-              text: 'Fruit Consumption'
+              text: 'Sri Lanka Precipitation'
           },
           xAxis: {
             labels: {
               formatter: function () {
-                // const dateRegex = /(\d{4})(\d{2})(\d{2})/;
-                // const date = String(this.value).match(dateRegex);
-                // const [d, year, month, day] = date;
-                // return year + '-' + month + '-' + day;
-                const d = moment(this.value, 'YYYYMMDD');
-                return d.toDate();
-              }
+                return moment.utc(this.value).format('MM/DD/YYYY'); 
+              },
+              // rotation: -60,
+              autoRotation: [-10, -20, -30, -40, -50, -60, -70, -80, -90]
+
             },
-            type: 'category'
+            type: 'dateTime',
+            // 
+            tickInterval: 24 * 60 * 60 * 1000,
           },
           yAxis: {
               title: {
-                  text: 'Precipitation'
+                  text: 'Precipitation (mm)'
               }
           },
+          // populate with the processed data below
+          series: [],
           tooltip: {
               formatter: function () {
-                  return 'The value for <b>' + this.x +
-                      '</b> is <b>' + this.y + '</b>';
+                return `${this.y} mm on ${moment.utc(this.x).format('MM/DD/YYYY')}`;
               }
           },
-          plotOptions: {
-                  series: {
-                      dataLabels: {
-                          // enabled: true,
-                      }
+      };
+
+      /*
+        Pre-process date strings into Unix timestamps so that Highcharts can interpret data
+        appropriately as a date rather than a string/category (e.g. it will put a space on the
+        axis for a missing day) and we don't have to parse tooltips/labels etc individually.
+       */
+      Highcharts.ajax({  
+          url: 'https://storage.googleapis.com/c2s_developer_exercise/Sri-Lanka_GSMaP_20180516_20180612.csv',
+          dataType: 'text',
+          success: function (data) {
+              const series = {
+                  data: [],
+                  name: 'Precipitation'
+              };
+              const lines = data.split('\r');
+
+              lines.forEach((line, lineNum) => {
+                  if (lineNum === 0) {
+                    // skip the header
+                    return;
                   }
-              },
+                  const [ dateStr, precip ] = line.split(',');
+                  const d = moment.utc(dateStr, 'YYYYMMDD');
+                  // valueOf gives Unix timestamp
+                  const dataPoint = [d.valueOf(), parseFloat(precip)];
+                  series.data.push(dataPoint);
+              });
+
+              options.series.push(series);
+
+              Highcharts.chart('container', options);
+          },
+          error: function (e, t) {
+              console.error(e, t);
+          }
       });
+
     </script>
   </body>
 </html>
