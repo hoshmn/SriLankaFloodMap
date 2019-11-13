@@ -17,32 +17,45 @@
   <style>
 
   	#map {
-  		position: static;
+  		position: static !important;
   	}
 
-  	.marker-button-container {
+  	.options-container {
   		position: absolute;
-	    right: 5px;
-	    top: 5px;
+	    right: 15px;
+	    top: 15px;
 	    padding: 5px;
 	    z-index: 500;
-	    background: #eeeeee5c;
+	    background: #eeeeeecc;
   	}
 
-  	.marker-button-container p {
+  	.options-container p {
   		display: inline;
+      user-select: none;
   	}
+
+    .options-container input:enabled {
+      cursor: pointer;
+    }
+
+    .options-container input:disabled {
+      cursor: not-allowed;
+    }
+
+    .options-container input:disabled::hover
 
   </style>
 	
 </head>
 <body>
 
-	<div class=marker-button-container>
-		<input type="checkbox" id="marker-button" checked>
-		<p>Hospital Markers</p>
+	<div class=options-container>
+		<input type="checkbox" id="marker-toggle"><p>Hospital Markers</p>
+    <br />
+    <input type="checkbox" id="floodmap-toggle"><p>Flood Map</p>
+    <!-- <input type="checkbox" id="floodmap-toggle" title="Loading..." disabled><p>Flood Map</p> -->
 	</div>
-	<div id="map" style="width: 100vw; height: 800px;"></div>
+	<div id="map" style="width: 100vw; height: 100vh;"></div>
 	<script>
 
 		const mymap = L.map('map').setView([8, 81], 7);
@@ -54,10 +67,12 @@
 				'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
 			id: 'mapbox.streets'
 		}).addTo(mymap);
+    
+    const floodMapLayer = L.tileLayer('https://storage.googleapis.com/c2s_developer_exercise/SentinelCombo_20180516_20180612/{z}/{x}/{y}.png');
 
-		const geojsonLayer = new L.GeoJSON.AJAX("https://storage.googleapis.com/c2s_developer_exercise/sri-lanka_hospitals_osm.geojson", { onEachFeature: onEachFeature });
+		const hospitalLayer = new L.GeoJSON.AJAX('https://storage.googleapis.com/c2s_developer_exercise/sri-lanka_hospitals_osm.geojson', { onEachFeature: onEachFeature });
 
-		geojsonLayer.addTo(mymap);
+		// hospitalLayer.addTo(mymap);
 
 		const properties = ['addr_city', 'addr_full', 'addr_house', 'addr_stree', 'amenity', 'beds', 'man_made', 'opening_ho', 'osm_id', 'rooms', 'shop', 'tourism'];
 
@@ -76,6 +91,8 @@
 
 
 		const url_to_geotiff_file = "https://storage.googleapis.com/c2s_developer_exercise/SentinelCombo_20180516_20180612.tif";
+
+    let floodLayer;
 
 		fetch(url_to_geotiff_file)
 		  .then(response => {
@@ -96,27 +113,36 @@
 
 		          http://leafletjs.com/reference-1.2.0.html#gridlayer
 		      */
-		      const layer = new GeoRasterLayer({
+		      floodLayer = new GeoRasterLayer({
 		          georaster: georaster,
 		          opacity: 0.7,
 		          pixelValuesToColorFn: values => values[0] === 42 ? '#ffffff' : '#000000',
 		          resolution: 64 // optional parameter for adjusting display resolution
 		      });
-		      layer.addTo(mymap);
 
-		      mymap.fitBounds(layer.getBounds());
-
+          // enable and remove Loading tooltip from toggle now that layer is accessible
+          floodmapToggle.disabled = false;
+          floodmapToggle.removeAttribute('title');
 		  });
 		});
 
 
-    const markerButon = document.getElementById('marker-button');
-    markerButon.onchange = e => {
+    const markerToggle = document.getElementById('marker-toggle');
+    markerToggle.onchange = e => {
     	if (e.target.checked) {
-    		mymap.addLayer(geojsonLayer);
+    		mymap.addLayer(hospitalLayer);
     	} else {
-    		mymap.removeLayer(geojsonLayer);
+    		mymap.removeLayer(hospitalLayer);
     	}
+    };
+    
+    const floodmapToggle = document.getElementById('floodmap-toggle');
+    floodmapToggle.onchange = e => {
+      if (e.target.checked) {
+        mymap.addLayer(floodMapLayer);
+      } else {
+        mymap.removeLayer(floodMapLayer);
+      }
     };
 	</script>
 	</body>
