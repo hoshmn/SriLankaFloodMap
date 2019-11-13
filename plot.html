@@ -10,7 +10,10 @@
     <script>
       const options = {
           chart: {
-              type: 'column'
+              type: 'column',
+              zoomType: 'x',
+              panning: true,
+              panKey: 'shift',
           },
           title: {
               text: 'Sri Lanka Precipitation'
@@ -25,8 +28,9 @@
 
             },
             type: 'dateTime',
-            // 
+            // tick label every day
             tickInterval: 24 * 60 * 60 * 1000,
+            minRange: 24 * 60 * 60 * 1000
           },
           yAxis: {
               title: {
@@ -37,7 +41,7 @@
           series: [],
           tooltip: {
               formatter: function () {
-                return `${this.y} mm on ${moment.utc(this.x).format('MM/DD/YYYY')}`;
+                return `${this.y}mm on ${moment.utc(this.x).format('MM/DD/YYYY')}`;
               }
           },
       };
