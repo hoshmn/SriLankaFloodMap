@@ -24,12 +24,35 @@
     <script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/georaster-layer-for-leaflet/georaster-layer-for-leaflet.browserify.min.js"></script>
 
+    <style>
+
+    	#map {
+    		position: static !important;
+    	}
+
+    	.marker-button-container {
+    		position: absolute;
+		    right: 5px;
+		    top: 5px;
+		    padding: 5px;
+		    z-index: 500;
+		    background: #eeeeee5c;
+    	}
+
+    	.marker-button-container p {
+    		display: inline;
+    	}
+
+    </style>
 	
 </head>
 <body>
 
-	<div id="map" style="width: 800px; height: 800px;"></div>
-
+	<div class=marker-button-container>
+		<input type="checkbox" id="marker-button" checked>
+		<p>Hospital Markers</p>
+	</div>
+	<div id="map" style="width: 100vw; height: 100vh;"></div>
 	<script>
 
 		const mymap = L.map('map').setView([8, 81], 7);
@@ -93,6 +116,16 @@
 
 		  });
 		});
+
+
+	  	const markerButon = document.getElementById('marker-button');
+	  	markerButon.onchange = e => {
+	  		if (e.target.checked) {
+	  			mymap.addLayer(geojsonLayer);
+	  		} else {
+	  			mymap.removeLayer(geojsonLayer);
+	  		}
+	  	};
 	</script>
 	</body>
 </html>
