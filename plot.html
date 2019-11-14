@@ -4,9 +4,32 @@
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script src="https://code.highcharts.com/modules/data.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+
+      <style>
+
+        #map {
+          position: static !important;
+        }
+
+        .nav-container {
+          position: absolute;
+          padding: 5px;
+          z-index: 500;
+          background: #eeeeeecc;
+          right: 15px;
+          top: 15px;
+        }
+
+      </style>
   </head>
   <body>
+
     <div id='container'></div>
+
+    <div class='nav-container'>
+      <a href='index.html' title='Navigate to map page'>To Map</a>
+    </div>
+
     <script>
       const options = {
           chart: {

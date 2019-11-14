@@ -20,19 +20,27 @@
   		position: static !important;
   	}
 
-  	.options-container {
-  		position: absolute;
-	    right: 15px;
-	    top: 15px;
-	    padding: 5px;
-	    z-index: 500;
-	    background: #eeeeeecc;
-  	}
+    .map-overlay {
+      position: absolute;
+      padding: 5px;
+      z-index: 500;
+      background: #eeeeeecc;
+    }
 
-  	.options-container p {
-  		display: inline;
+    .nav-container {
+      right: 15px;
+      top: 15px;
+    }
+
+    .options-container {
+      left: 15px;
+      bottom: 15px;
+    }
+
+    .options-container p {
+      display: inline;
       user-select: none;
-  	}
+    }
 
     .options-container input:enabled {
       cursor: pointer;
@@ -47,14 +55,20 @@
 </head>
 <body>
 
-	<div class=options-container>
+	<div class="options-container map-overlay">
 		<input type="checkbox" id="hospital-toggle"><p>Hospital Markers</p>
     <br />
     <input type="checkbox" id="flood-map-toggle"><p>Flood Map</p>
     <br />
     <input type="checkbox" id="raster-toggle" title="Loading..." disabled><p>Raster Data</p>
 	</div>
+
+  <div class="nav-container map-overlay">
+    <a href="plot.html" title="Navigate to metrics page">To Metrics</a>
+  </div>
+
 	<div id="map" style="width: 100vw; height: 100vh;"></div>
+
 	<script>
 
 		const map = L.map('map').setView([8, 81], 7);
