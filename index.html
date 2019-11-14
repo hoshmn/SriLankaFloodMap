@@ -42,37 +42,31 @@
       cursor: not-allowed;
     }
 
-    .options-container input:disabled::hover
-
   </style>
 	
 </head>
 <body>
 
 	<div class=options-container>
-		<input type="checkbox" id="marker-toggle"><p>Hospital Markers</p>
+		<input type="checkbox" id="hospital-toggle"><p>Hospital Markers</p>
     <br />
-    <input type="checkbox" id="floodmap-toggle"><p>Flood Map</p>
-    <!-- <input type="checkbox" id="floodmap-toggle" title="Loading..." disabled><p>Flood Map</p> -->
+    <input type="checkbox" id="flood-map-toggle"><p>Flood Map</p>
+    <br />
+    <input type="checkbox" id="raster-toggle" title="Loading..." disabled><p>Raster Data</p>
 	</div>
 	<div id="map" style="width: 100vw; height: 100vh;"></div>
 	<script>
 
-		const mymap = L.map('map').setView([8, 81], 7);
+		const map = L.map('map').setView([8, 81], 7);
 
-		L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+		L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 			maxZoom: 18,
-			attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-				'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-				'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-			id: 'mapbox.streets'
-		}).addTo(mymap);
+  		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+		}).addTo(map);
     
     const floodMapLayer = L.tileLayer('https://storage.googleapis.com/c2s_developer_exercise/SentinelCombo_20180516_20180612/{z}/{x}/{y}.png');
 
 		const hospitalLayer = new L.GeoJSON.AJAX('https://storage.googleapis.com/c2s_developer_exercise/sri-lanka_hospitals_osm.geojson', { onEachFeature: onEachFeature });
-
-		// hospitalLayer.addTo(mymap);
 
 		const properties = ['addr_city', 'addr_full', 'addr_house', 'addr_stree', 'amenity', 'beds', 'man_made', 'opening_ho', 'osm_id', 'rooms', 'shop', 'tourism'];
 
@@ -89,60 +83,47 @@
 			layer.bindPopup(popupContent);
 		};
 
-
-		const url_to_geotiff_file = "https://storage.googleapis.com/c2s_developer_exercise/SentinelCombo_20180516_20180612.tif";
-
-    let floodLayer;
-
-		fetch(url_to_geotiff_file)
-		  .then(response => {
-        return response.arrayBuffer();
-      })
-		  .then(arrayBuffer => {
-		    parseGeoraster(arrayBuffer).then(georaster => {
-		      console.log("georaster:", georaster);
-
-		      /*
-		          GeoRasterLayer is an extension of GridLayer,
-		          which means can use GridLayer options like opacity.
-
-		          Just make sure to include the georaster option!
-
-		          Optionally set the pixelValuesToColorFn function option to customize
-		          how values for a pixel are translated to a color.
-
-		          http://leafletjs.com/reference-1.2.0.html#gridlayer
-		      */
-		      floodLayer = new GeoRasterLayer({
-		          georaster: georaster,
-		          opacity: 0.7,
-		          pixelValuesToColorFn: values => values[0] === 42 ? '#ffffff' : '#000000',
-		          resolution: 64 // optional parameter for adjusting display resolution
-		      });
-
-          // enable and remove Loading tooltip from toggle now that layer is accessible
-          floodmapToggle.disabled = false;
-          floodmapToggle.removeAttribute('title');
-		  });
-		});
-
-
-    const markerToggle = document.getElementById('marker-toggle');
-    markerToggle.onchange = e => {
+    const hospitalToggle = document.getElementById('hospital-toggle');
+    hospitalToggle.onchange = e => {
     	if (e.target.checked) {
-    		mymap.addLayer(hospitalLayer);
+    		map.addLayer(hospitalLayer);
     	} else {
-    		mymap.removeLayer(hospitalLayer);
+    		map.removeLayer(hospitalLayer);
     	}
     };
-    
-    const floodmapToggle = document.getElementById('floodmap-toggle');
+
+    const floodmapToggle = document.getElementById('flood-map-toggle');
     floodmapToggle.onchange = e => {
       if (e.target.checked) {
-        mymap.addLayer(floodMapLayer);
+        map.addLayer(floodMapLayer);
       } else {
-        mymap.removeLayer(floodMapLayer);
+        map.removeLayer(floodMapLayer);
       }
+    
+    const rasterToggle = document.getElementById('raster-toggle');
+    rasterToggle.onchange = e => {
+      if (e.target.checked) {
+        map.addLayer(rasterLayer);
+      } else {
+        map.removeLayer(rasterLayer);
+      }
+    };
+
+		const geoTiffUrl = 'https://storage.googleapis.com/c2s_developer_exercise/SentinelCombo_20180516_20180612.tif';
+    let rasterLayer;
+		fetch(geoTiffUrl)
+		  .then(response => response.arrayBuffer())
+		  .then(arrayBuffer => parseGeoraster(arrayBuffer))
+      .then(georaster => {
+	      rasterLayer = new GeoRasterLayer({
+          georaster: georaster,
+          opacity: 0.3,
+	      });
+
+        // enable and remove Loading tooltip from toggle now that layer is accessible
+        rasterToggle.disabled = false;
+        rasterToggle.removeAttribute('title');
+		  });
     };
 	</script>
 	</body>
