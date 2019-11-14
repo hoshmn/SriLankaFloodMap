@@ -8,11 +8,8 @@
   <script src='https://code.highcharts.com/modules/data.js' crossorigin=''></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js' crossorigin=''></script>
 
-    <style>
 
-      #map {
-        position: static !important;
-      }
+    <style>
 
       .nav-container {
         position: absolute;
@@ -23,14 +20,42 @@
         top: 15px;
       }
 
+      .impact-container {
+        display: flex;
+      }
+
+      .impact-detail {
+        flex: 1 1 auto;
+        text-align: center;
+      }
+
     </style>
 </head>
 <body>
 
-  <div id='container'></div>
+  <div id='chart-container'></div>
 
   <div class='nav-container'>
     <a href='index.html' title='Navigate to map page'>To Map</a>
+  </div>
+
+  <div class='impact-container'>
+    <span class='impact-detail'>
+      <h4>Began</h4>
+      <p>05/16/2018</p>
+    </span>
+    <span class='impact-detail'>
+      <h4>Ended</h4>
+      <p>06/12/2018</p>
+    </span>
+    <span class='impact-detail'>
+      <h4>Area Flooded</h4>
+      <p>11,133.14 (km2)</p>
+    </span>
+    <span class='impact-detail'>
+      <h4>Population Exposed</h4>
+      <p>129,001</p>
+    </span>
   </div>
 
   <script>
@@ -101,7 +126,7 @@
 
             options.series.push(series);
 
-            Highcharts.chart('container', options);
+            Highcharts.chart('chart-container', options);
         },
         error: function (e, t) {
             console.error(e, t);
